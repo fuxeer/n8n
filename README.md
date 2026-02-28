@@ -27,7 +27,7 @@ this project is build using n8n for the automation integerating :
  
  <img width="641" height="356" alt="image" src="https://github.com/user-attachments/assets/048426fa-a913-4042-a646-bc734ff51e8b" />
  
- at the end of the process you will be givin a key for the bot to be used in telegram trigger node Access Token
+ >at the end of the process you will be givin a key for the bot to be used in telegram trigger node Access Token
 
  <img width="1196" height="552" alt="image" src="https://github.com/user-attachments/assets/0a3edbbd-e3f3-4df3-b247-d0411976a0e0" />
 
@@ -38,7 +38,7 @@ this project is build using n8n for the automation integerating :
 
  <img width="711" height="438" alt="image" src="https://github.com/user-attachments/assets/f81279f2-9a46-45df-be80-012db9cf88aa" />
 
- the node will check if the incomng message from a specific user. if not it will return "sorry, you dont have access to this bot"
+ >the node will check if the incomng message from a specific user. if not it will return "sorry, you dont have access to this bot"
 
  * (if node)
 
@@ -127,7 +127,7 @@ THE MESSAGE:
 ```
 * **OutPut Parser** :
 
-the Scheme type is a JSON example
+>the Scheme type is a JSON example
 
 <img width="417" height="666" alt="image" src="https://github.com/user-attachments/assets/3c41ae68-fade-497c-a1d9-cba29abca6d0" />
 
@@ -155,6 +155,11 @@ after that the output will branch to two sections
 
 <img width="598" height="481" alt="image" src="https://github.com/user-attachments/assets/1e98d752-1b60-4fa1-b4e1-dfe020a8c888" />
 
+but before that an if statment will check any values are not present 
+
+<img width="221" height="230" alt="image" src="https://github.com/user-attachments/assets/4ee1b6ec-fdfe-4858-81a7-8e437c1d480a" />
+
+
 ___
 
 
@@ -180,7 +185,7 @@ if it not the other one will execude
 
 <img width="778" height="359" alt="image" src="https://github.com/user-attachments/assets/cb09bb82-d63f-4049-8267-27f487b3a8c2" />
 
-the if statment will check if the  **Email** property is "null" or not
+>the if statment will check if the  **Email** property is "null" or not
 
 <img width="647" height="160" alt="image" src="https://github.com/user-attachments/assets/3c7748f4-fe3a-4f07-a2a9-fc584b2676a2" />
 
@@ -190,21 +195,72 @@ the if statment will check if the  **Email** property is "null" or not
 it will send an email to the given email from the text 
 that include 
 
-*the summery
-*
+* summery
+* description
+
+  
 <img width="422" height="615" alt="image" src="https://github.com/user-attachments/assets/7802bec2-8a86-4181-a523-f22b58020603" />
 
+# How to Run
 
+ther are two to run n8n 
+* on the cloud through n8n
+* locally
 
+i will show the steps to for setup n8n locally using Docker
 
+### requirements
+  * installing Docker
+  * downloading n8n image through Docker
+  * optionally : if you are planning to use webhooks and triggers you **Must** a **_Domain_** and a **_Tunnel_** for the the domain and download the image from docker 
 
+ <br><br><br>
 
+ #### Docker Compose 
+ i used **Docker compose** to create the containers 
+ 
+ the name of the file should be `docker-compose.yml` 
 
+ ```
+version: "3.8"
 
+services:
+    n8n:
+        image: n8nio/n8n:latest
+        container_name: n8n
+        restart: unless-stopped
+        ports:
+            - "5678:5678"
+        environment:
+            - N8N_HOST= << THE URL FOR THE DOMAIN >> 
+            - N8N_PROTOCOL=https
+            - WEBHOOK_URL=https:  << THE URL FOR THE DOMAIN >> 
+            - TZ=Asia/Riyadh
+            - GENERIC_TIMEZONE=Asia/Riyadh
+            - N8N_ENABLE_COMMUNITY_NODES=true
+        volumes:
+            - n8n-data:/home/node/.n8n
 
+    << cloudflare is optional unless you want to access your n8n intance throught the internet or have webhooks >> 
+        
+    cloudflared:
+        image: cloudflare/cloudflared:latest
+        container_name: cloudflared
+        restart: unless-stopped
+        command: tunnel --no-autoupdate run --token /<< YOUR TUNNEL TOKEN >>
+        depends_on:
+            - n8n
+
+volumes:
+    n8n-data:
+
+ ```
+
+ >a domain is necessery to enable communication with webhooks
+
+___
+many nodes will ask for credintials. to use them you must provide the needed credintials 
 
  
 
-
-
- 
+  
