@@ -1,0 +1,761 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -992,
+        0
+      ],
+      "id": "e1a2542e-396c-4f7e-aa96-caf74f6e46a4",
+      "name": "Telegram Trigger",
+      "webhookId": "3ec87df2-572c-479d-b2f9-cf42f8b9e35d",
+      "credentials": {
+        "telegramApi": {
+          "id": "d2323IY14eYMEWsD",
+          "name": "faisal bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=you are a task extractor. You will be given a text to extract the needed information from it \ndo not add from yourself\n\nyou will decide if the give text is about an online meeting where it should be with other participant (a team) where it is going to be hosted on Google Meet, or a personal event or a personal meeting that doesn't require an online meeting\nfor the meeting is should a group meeting if not then it is personal\n\nThe output should be in JSON format.\n\n{\n  \"summary\": \"Strategy Meeting\",\n  \"location\": \"Eiffel Tower, Paris, France\",\n  \"description\": \"A meeting to discuss the new project strategy.\",\n  \"start\": {\n    \"dateTime\": \"2026-03-10T08:00:00.000+03:00\",\n    \"timeZone\": \"Asia/Riyadh\"\n  },\n  \"end\": {\n    \"dateTime\": \"2026-03-10T09:00:00.000+03:00\",\n    \"timeZone\": \"Asia/Riyadh\"\n  },\n  \"email\" : \"faisal2341234@gmail.com\"\n  \"Group_meeting\" : true,\n  \"online_meeting\" : true\n}\n\n- the current date is {{ $now }}\n-The time should be in ISO and have the same format\n-The timezone is: Asia/Riyadh\n-Do not add any information from yourself\n-only produce JSON, \n-do not add any new parameters\n\nAND DO NOT RETURN TEXT\nIf the location is not provided, make it \"null\"\nif the email is not provided make it \"null\"\nyou can make the description better grammatically, but don't add any new information\n\nIf no valid event information is found, return:\n\n{\n  \"summary\": \"null\",\n  \"location\": \"null\",\n  \"description\": \"null\",\n  \"start\": {\n    \"dateTime\": \"null\",\n    \"timeZone\": \"Asia/Riyadh\"\n  },\n  \"end\": {\n    \"dateTime\": \"null\",\n    \"timeZone\": \"Asia/Riyadh\"\n  },\n  \"email\": \"null\"\n}\n\n\nTHE MESSAGE:\n{{ $json.message.text }}",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "37cdc823-fe0e-4be7-ad7e-c5984952c7aa",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.output.email }}",
+        "subject": "={{ $json.output.summary }}",
+        "message": "={{ $json.output.description }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1344,
+        272
+      ],
+      "id": "968000fc-ecc6-4a0d-8915-d4565d097f5d",
+      "name": "Send a message",
+      "webhookId": "26cc75c0-ff44-4cd0-ba34-b16c2d694151",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TvIpJJMhN4BsNWwY",
+          "name": "faisal gmail"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"summary\": \"Strategy Meeting\",\n  \"location\": \"Eiffel Tower, Paris, France\",\n  \"description\": \"A meeting to discuss the new project strategy.\",\n  \"start\": {\n    \"dateTime\": \"2026-03-10T08:00:00.000+03:00\",\n    \"timeZone\": \"Asia/Riyadh\"\n  },\n  \"end\": {\n    \"dateTime\": \"2026-03-10T09:00:00.000+03:00\",\n    \"timeZone\": \"Asia/Riyadh\"\n  },\n  \"email\" : \"faisal2341234@gmail.com\",\n  \"Group_meeting\" : true,\n  \"online_meeting\" : true\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        400,
+        256
+      ],
+      "id": "0bfed0ca-c4db-46b9-8c86-8958d7472e5d",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        176,
+        256
+      ],
+      "id": "fcaadda0-d453-4428-8f7a-ecdd07929047",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "B3LfhSzozddfASDL",
+          "name": "faisal gemini"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "faisal0500656512@gmail.com",
+          "mode": "list",
+          "cachedResultName": "faisal0500656512@gmail.com"
+        },
+        "start": "={{ $json.output.start.dateTime }}",
+        "end": "={{ $json.output.end.dateTime }}",
+        "additionalFields": {
+          "allday": "no",
+          "description": "={{ $json.output.description }}",
+          "location": "={{$json[\"output\"][\"location\"] === \"null\" ? null : $json[\"output\"][\"location\"]}}",
+          "summary": "={{ $json.output.summary }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1600,
+        -32
+      ],
+      "id": "4ebeb13e-18ba-45f6-b305-ea9941d9fe61",
+      "name": "Create an event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "EHs3RaLNdWvuFuDH",
+          "name": "faisal calendar"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "21532986-2851-4368-91d1-f562029b3164",
+              "leftValue": "={{ $json['message']['from']['username'] }}",
+              "rightValue": "=FASIAL_ALRAYIQI",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -704,
+        0
+      ],
+      "id": "b9dd21c9-ba6c-46ae-9110-99679c3c84fa",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "sorry, you dont have access to this bot",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -496,
+        160
+      ],
+      "id": "07ad1fdb-8791-44f3-a030-25f34980e161",
+      "name": "Send a text message",
+      "webhookId": "70fcbbfc-c41c-4972-a7e8-3f335768623c",
+      "credentials": {
+        "telegramApi": {
+          "id": "d2323IY14eYMEWsD",
+          "name": "faisal bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "faisal0500656512@gmail.com"
+        },
+        "start": "={{ $json.output.start.dateTime }}",
+        "end": "={{ $json.output.end.dateTime }}",
+        "additionalFields": {
+          "allday": "no",
+          "attendees": [
+            "fuxeer-n8n@googlegroups.com"
+          ],
+          "conferenceDataUi": {
+            "conferenceDataValues": {
+              "conferenceSolution": "hangoutsMeet"
+            }
+          },
+          "description": "={{ $json.output.description }}",
+          "sendUpdates": "all",
+          "summary": "={{ $json.output.summary }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1600,
+        -480
+      ],
+      "id": "a1b7c1a9-b3b9-4435-9726-fa60605a47aa",
+      "name": "Create an event1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "EHs3RaLNdWvuFuDH",
+          "name": "faisal calendar"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "21532986-2851-4368-91d1-f562029b3164",
+              "leftValue": "={{ $json.output.email }}",
+              "rightValue": "=null",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1088,
+        288
+      ],
+      "id": "31bd2a40-ff92-418e-ab49-945c60c7222f",
+      "name": "email"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e77cfa60-7aa8-4dc9-99f8-afcfaae487de",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -224,
+        -16
+      ],
+      "id": "67db0013-5118-45b4-8b29-10c2cf9380e6",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "sorry, this bot only accept Text",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        128
+      ],
+      "id": "6d7bffed-9d83-4c85-8a3c-76bfc6822d7a",
+      "name": "Send a text message1",
+      "webhookId": "70fcbbfc-c41c-4972-a7e8-3f335768623c",
+      "credentials": {
+        "telegramApi": {
+          "id": "d2323IY14eYMEWsD",
+          "name": "faisal bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Event Created",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        -208
+      ],
+      "id": "8413bb41-1d01-4889-a796-92a5d7fc428a",
+      "name": "Send a text message2",
+      "webhookId": "70fcbbfc-c41c-4972-a7e8-3f335768623c",
+      "credentials": {
+        "telegramApi": {
+          "id": "d2323IY14eYMEWsD",
+          "name": "faisal bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "Working on Creating the request event",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        16,
+        -224
+      ],
+      "id": "03b3eb45-399d-4c19-9a18-ff4d7356f14f",
+      "name": "Send a text message3",
+      "webhookId": "70fcbbfc-c41c-4972-a7e8-3f335768623c",
+      "credentials": {
+        "telegramApi": {
+          "id": "d2323IY14eYMEWsD",
+          "name": "faisal bot"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1840,
+        -624
+      ],
+      "id": "9244234a-0500-4e83-8d1c-6b2f6a5eedd6",
+      "name": "Error Trigger"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f9302aa2-7764-4213-9d00-ff48284e4599",
+              "leftValue": "={{ $json.output.description }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "fbb2afed-5ce7-4e92-a1af-38dfe3ac4930",
+              "leftValue": "={{ $json.output.start.dateTime }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "9f884e8a-eacd-4580-812e-e07316f5994f",
+              "leftValue": "={{ $json.output.end.dateTime }}",
+              "rightValue": "null",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        576,
+        0
+      ],
+      "id": "04154aff-e45c-48b1-acb5-2c92a00c52b1",
+      "name": "If2"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "=please provide all the necessary information, including : \n 1- description \n 2- date (start and end)\n 3- place (if available)\n 4- type of event (online meeting, personal)",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        784,
+        -400
+      ],
+      "id": "b97ff6bf-21ea-4dd8-9d8a-50283d2caee2",
+      "name": "Send a text message4",
+      "webhookId": "70fcbbfc-c41c-4972-a7e8-3f335768623c",
+      "credentials": {
+        "telegramApi": {
+          "id": "d2323IY14eYMEWsD",
+          "name": "faisal bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "mode": "list",
+          "value": "faisal0500656512@gmail.com"
+        },
+        "start": "={{ $json.output.start.dateTime }}",
+        "end": "={{ $json.output.end.dateTime }}",
+        "additionalFields": {
+          "allday": "no",
+          "attendees": [
+            "=fuxeer-n8n@googlegroups.com"
+          ],
+          "description": "={{ $json.output.description }}",
+          "location": "={{ $json.output.location }}",
+          "sendUpdates": "all",
+          "summary": "={{ $json.output.summary }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendar",
+      "typeVersion": 1.3,
+      "position": [
+        1600,
+        -272
+      ],
+      "id": "b6aa5589-e040-44be-8122-89bb3a28f231",
+      "name": "Create an event2",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "EHs3RaLNdWvuFuDH",
+          "name": "faisal calendar"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "21532986-2851-4368-91d1-f562029b3164",
+              "leftValue": "={{ $json.output.online_meeting }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1328,
+        -288
+      ],
+      "id": "7bbc3d7b-ec90-444f-96fe-a50ff6d71562",
+      "name": "online meeting"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "21532986-2851-4368-91d1-f562029b3164",
+              "leftValue": "={{ $json.output.Group_meeting }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1072,
+        -144
+      ],
+      "id": "ff2a7015-46a4-4d39-8b6a-fcf32a4e9118",
+      "name": "meeting"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message3",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event1": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "If2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "meeting",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a text message4": {
+      "main": [
+        []
+      ]
+    },
+    "Create an event2": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "online meeting": {
+      "main": [
+        [
+          {
+            "node": "Create an event1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create an event2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "meeting": {
+      "main": [
+        [
+          {
+            "node": "online meeting",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create an event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "d9e1063f-610e-47b6-b943-9900a28ff557",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ca2284f3419523080c2117412d91484c2d248426947ad4d518b3297d13e2ae1e"
+  },
+  "id": "bc2FAgRApvTaYwft",
+  "tags": []
+}
