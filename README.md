@@ -261,6 +261,12 @@ volumes:
 ___
 many nodes will ask for credintials. to use them you must provide the needed credintials 
 
+<br>
+<hr>
+<br> 
+<img width="1876" height="954" alt="image" src="https://github.com/user-attachments/assets/9b1000a8-9e39-4e88-b1db-42377fdc344f" />
+>a we have added a new google calender node and an if statment to decided if the it an online meeting or not
+
  
 
   
