@@ -148,8 +148,10 @@ THE MESSAGE:
     "timeZone": "Asia/Riyadh"
   },
   "email" : "faisal2341234@gmail.com",
-  "meeting" : true
+  "Group_meeting" : true,
+  "online_meeting" : true
 }
+
 ```
 ___
 
@@ -271,5 +273,9 @@ many nodes will ask for credintials. to use them you must provide the needed cre
  > we have added a new google calender node and an if statment to decided if the it an online meeting or not
 
  
+
+
+https://github.com/user-attachments/assets/76f1806c-220d-4093-92d6-e10d59b14317
+
 
   
